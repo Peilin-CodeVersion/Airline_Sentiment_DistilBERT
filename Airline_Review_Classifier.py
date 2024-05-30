@@ -2,7 +2,7 @@ import streamlit as st
 from transformers import DistilBertForSequenceClassification, DistilBertTokenizerFast
 
 
-model_dir = "https://raw.githubusercontent.com/Peilin-CodeVersion/Airline_Sentiment_DistilBERT/tree/main/DistilBERT"
+model_dir = "DistilBERT"
 
 # Load the model and tokenizer
 model = DistilBertForSequenceClassification.from_pretrained(model_dir)
