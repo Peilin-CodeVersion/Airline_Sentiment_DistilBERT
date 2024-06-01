@@ -98,3 +98,4 @@ if st.button("Analyze"):
         sentiment = sentiments[prediction]
         
         st.success(f"The sentiment of the review is: {sentiment}")
+
