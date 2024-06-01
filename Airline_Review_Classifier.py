@@ -6,6 +6,7 @@ from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
 import torch
+from PIL import Image
 
 # Ensure NLTK data is downloaded
 # nltk.download('stopwords')
