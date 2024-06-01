@@ -7,10 +7,10 @@ from nltk import pos_tag
 from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
 import torch
 
-# Download necessary NLTK data files
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
+# Ensure NLTK data is downloaded
+# nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('averaged_perceptron_tagger')
 
 # Load model and tokenizer
 model_dir = 'Peilin-CodeVersion/Airline_Sentiment_Classifier_DistilBERT'
@@ -78,24 +78,5 @@ def preprocess_text(text):
 def get_aspect(text):
     tagged = pos_tag(word_tokenize(text))
     aspects = []
-    for i in range(len(tagged)-1):
-        if tagged[i][1] == 'NN' and tagged[i+1][1] == 'JJ':
-            aspects += [tagged[i][0], tagged[i+1][0]]
-    return ' '.join(aspects)
-
-if st.button("Analyze"):
-    with st.spinner("Please wait for a few seconds, the application will be loaded soon ⏳"):
-        # Preprocess the text
-        processed_text = preprocess_text(user_input)
-        
-        # Tokenize and predict
-        inputs = tokenizer(processed_text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-        outputs = model(**inputs)
-        prediction = torch.argmax(outputs.logits, dim=1).item()
-        
-        # Map prediction to sentiment
-        sentiments = ['Negative', 'Neutral', 'Positive']
-        sentiment = sentiments[prediction]
-        
-        st.success(f"The sentiment of the review is: {sentiment}")
+    for i 
 
