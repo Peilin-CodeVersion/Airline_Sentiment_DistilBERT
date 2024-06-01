@@ -19,13 +19,13 @@ tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
 model = DistilBertForSequenceClassification.from_pretrained(model_dir)
 
 # Set up Streamlit interface
-st.title("Welcome to the Airline Sentiment Review Classifier!")
+st.title("Welcome to the Airline Sentiment Review Classifier!✈️")
 st.markdown("""
     The Airline Sentiment Review Classifier analyzes and classifies customer review sentiments.
 
     It determines if the sentiment is positive, negative, or neutral and it processes text data from reviews to provide insights.
 
-    This application was developed for airlines to understand customer feedback and improve services.
+    This application was developed for airlines to understand customer feedback and improve services🛬🛫.
 """)
 
 home_image = Image.open('Picture1.png')
@@ -98,7 +98,7 @@ if st.button("Analyze"):
         prediction = torch.argmax(outputs.logits, dim=1).item()
         
         # Map prediction to sentiment
-        sentiments = ['Negative', 'Neutral', 'Positive']
+        sentiments = ['Negative❎', 'Neutral🛫', 'Positive✅']
         sentiment = sentiments[prediction]
         
         st.success(f"The sentiment of the review is: {sentiment}")
