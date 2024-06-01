@@ -1,29 +1,100 @@
 import streamlit as st
-from transformers import DistilBertForSequenceClassification, DistilBertTokenizerFast
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
+from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
+import torch
 
+# Download necessary NLTK data files
+nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 
-model_dir = "DistilBERT"
-
-# Load the model and tokenizer
-model = DistilBertForSequenceClassification.from_pretrained(model_dir)
+# Load model and tokenizer
+model_dir = 'Peilin-CodeVersion/Airline_Sentiment_Classifier_DistilBERT'
 tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
+model = DistilBertForSequenceClassification.from_pretrained(model_dir)
 
-# Create a title for the app
-st.title('DistilBERT Classifier')
+# Set up Streamlit interface
+st.title("Welcome to the Airline Sentiment Review Classifier!")
+st.markdown("""
+    The Airline Sentiment Review Classifier analyzes and classifies customer review sentiments.
 
-# Create a text input for user input
-user_input = st.text_input("Enter your text here")
+    It determines if the sentiment is positive, negative, or neutral and it processes text data from reviews to provide insights.
 
-# Create a button for getting predictions
-if st.button('Predict'):
-    # Tokenize the user input
-    inputs = tokenizer(user_input, return_tensors='pt')
+    This application was developed for airlines to understand customer feedback and improve services.
+""")
 
-    # Get the model's prediction
-    outputs = model(**inputs)
+# User input
+user_input = st.text_area("It’s simple to kick start! Just input your airline review & our model will analyze and check the text you provided.")
 
-    # Get the predicted class
-    predicted_class = outputs.logits.argmax(-1).item()
+def preprocess_text(text):
+    # Remove URLs
+    text = re.sub(r'http\S+', '', text)
+    
+    # Remove HTML tags
+    html = re.compile(r'<.*?>')
+    text = html.sub(r'', text)
+    
+    # Remove user mentions
+    text = re.sub(r'@\w+', '', text)
+    
+    # Remove emojis
+    emoji_pattern = re.compile("["
+                               u"\U0001F600-\U0001F64F"  # emoticons
+                               u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                               u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                               u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                               u"\U00002702-\U000027B0"
+                               u"\U000024C2-\U0001F251"
+                               "]+", flags=re.UNICODE)
+    text = emoji_pattern.sub(r'', text)
+    
+    # Remove special symbols and punctuation
+    text = re.sub(r'[^\w\s]', ' ', text)
+    
+    # Replace everything with space except (a-z, A-Z, ".", "?", "!", ",")
+    text = re.sub(r"[^a-zA-Z?.!,¿]+", " ", text)
+    
+    # Remove punctuations
+    punctuations = '#!?+&*[]-%.:/();$=><|{}^' + "'`" + '_'
+    for p in punctuations:
+        text = text.replace(p, '')
+    
+    # Convert to lowercase and split into words
+    words = text.lower().split()
+    
+    # Remove stopwords
+    stop_words = set(stopwords.words('english'))
+    filtered_words = [word for word in words if word not in stop_words]
+    
+    # Join the words back into a sentence
+    processed_text = ' '.join(filtered_words)
+    
+    return processed_text
 
-    # Display the predicted class
-    st.write(f"The predicted class for the input is: {predicted_class}")
+def get_aspect(text):
+    tagged = pos_tag(word_tokenize(text))
+    aspects = []
+    for i in range(len(tagged)-1):
+        if tagged[i][1] == 'NN' and tagged[i+1][1] == 'JJ':
+            aspects += [tagged[i][0], tagged[i+1][0]]
+    return ' '.join(aspects)
+
+if st.button("Analyze"):
+    with st.spinner("Please wait for a few seconds, the application will be loaded soon ⏳"):
+        # Preprocess the text
+        processed_text = preprocess_text(user_input)
+        
+        # Tokenize and predict
+        inputs = tokenizer(processed_text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+        outputs = model(**inputs)
+        prediction = torch.argmax(outputs.logits, dim=1).item()
+        
+        # Map prediction to sentiment
+        sentiments = ['Negative', 'Neutral', 'Positive']
+        sentiment = sentiments[prediction]
+        
+        st.success(f"The sentiment of the review is: {sentiment}")
