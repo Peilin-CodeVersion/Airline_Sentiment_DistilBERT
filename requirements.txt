@@ -16,6 +16,6 @@ streamlit==1.16.0
 streamlit-option-menu
 pandas
 torch
-transformers==4.0.0
+transformers
 Pillow
 accelerate
