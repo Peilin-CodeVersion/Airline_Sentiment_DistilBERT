@@ -27,6 +27,9 @@ st.markdown("""
     This application was developed for airlines to understand customer feedback and improve services.
 """)
 
+home_image = Image.open('Picture1.png')
+st.image(home_image, caption="")
+
 # User input
 user_input = st.text_area("It’s simple to kick start! Just input your airline review & our model will analyze and check the text you provided.")
 
